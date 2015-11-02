@@ -1,0 +1,9 @@
+{
+	"config_file_name": "config.json",
+	"BA" : {
+		"Cid": "123456789",
+		"Path_for_backup": ["./", "/tmp"]
+	}
+	
+
+}
