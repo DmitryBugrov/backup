@@ -1,8 +1,10 @@
 package mylog
 
 import (
-	"io"
-	"log"
+	"fmt"
+	"runtime"
+	"strconv"
+	"time"
 )
 
 const (
@@ -13,47 +15,34 @@ const (
 )
 
 var (
-	Trace   *log.Logger
-	Info    *log.Logger
-	Warning *log.Logger
-	Error   *log.Logger
-
 	LogLevel int = 3
 )
 
 //Init Log
-func Init(Handle io.Writer, ll int) {
+func Init(ll int) {
 	LogLevel = ll
 
-	Trace = log.New(Handle,
-		"TRACE: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
-
-	Info = log.New(Handle,
-		"INFO: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
-
-	Warning = log.New(Handle,
-		"WARNING: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
-
-	Error = log.New(Handle,
-		"ERROR: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
 }
 
 //Print log message
 func Print(ll int, msg ...string) {
-	if ll <= LogLevel {
-		switch LogLevel {
+	pc, _, line, _ := runtime.Caller(1)
+	func_and_line := runtime.FuncForPC(pc).Name() + ":" + strconv.Itoa(line)
+	tmestamp := time.Now().Format(time.StampMilli)
+	if ll >= LogLevel {
+		switch ll {
 		case LogLevelError:
-			Error.Println(msg)
+			//	Error.Println(out)
+			fmt.Println(tmestamp, "[Error]", func_and_line, msg)
 		case LogLevelWarning:
-			Warning.Println(msg)
+			//	Warning.Println(out)
+			fmt.Println(tmestamp, "[Warning]", func_and_line, msg)
 		case LogLevelInfo:
-			Info.Println(msg)
+			//	Info.Println(out)
+			fmt.Println(tmestamp, "[Info]", func_and_line, msg)
 		case LogLevelTrace:
-			Trace.Println(msg)
+			//	Trace.Println(out)
+			fmt.Println(tmestamp, "[Trace]", func_and_line, msg)
 		}
 
 	}

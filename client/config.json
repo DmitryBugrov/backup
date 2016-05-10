@@ -1,8 +1,15 @@
 {
 	"config_file_name": "config.json",
-	"BA" : {
+	"BAcfg" : {
 		"Cid": "123456789",
-		"Path_for_backup": ["./", "/tmp"]
+		"MaxFileSegment": 1048576,
+		"BackupGroup": [ {
+			"Path_for_backup": ["./", "/tmp"]
+			},
+			{
+			"Path_for_backup": ["/var"]
+			}
+			]
 	}
 	
 

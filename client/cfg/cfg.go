@@ -5,8 +5,9 @@ import (
 	//	"log"
 	//	"fmt"
 	//	"github.com/spf13/viper"
-	"backup/client/mylog"
+	//"backup/client/log"
 	"encoding/json"
+	"github.com/DmitryBugrov/log"
 	"os"
 )
 
@@ -22,33 +23,44 @@ type Cfg struct {
 	//Path to config file
 	config_file_name string
 
-	//BA - config for Backup Agent
-	BA struct {
-		//Unic client id
+	//BAcfg - config for Backup Agent
+	BAcfg struct {
+		//Unique client id
 		Cid             string
-		Path_for_backup []string
+		MaxFileSegment	int64
+		BackupGroup []struct {
+			Path_for_backup []string
+			Schedule struct {
+				Type byte
+				DayOfWeek byte
+				Day int
+				Hour int
+				Min int
+				HALB int //Hour after last backup
+				
+			}
+		}
 	}
 }
 
 func (c *Cfg) Init(file_name string) error {
-
-	mylog.Print(mylog.LogLevelTrace, "Enter to cfg.Init")
+	log.Print(log.LogLevelTrace, "Enter to cfg.Init")
 	c.config_file_name = file_name
 	err := c.load()
 	return err
 }
 
 func (c *Cfg) load() error {
-	mylog.Print(mylog.LogLevelTrace, "Enter to cfg.Load")
+	log.Print(log.LogLevelTrace, "Enter to cfg.Load")
 	file, err := os.Open(c.config_file_name)
 	if err != nil {
-		mylog.Print(mylog.LogLevelError, "Configuration file cannot be loaded: ", c.config_file_name)
+		log.Print(log.LogLevelError, "Configuration file cannot be loaded: ", c.config_file_name)
 		return err
 	}
 	jsonParser := json.NewDecoder(file)
 	err = jsonParser.Decode(&c)
 	if err != nil {
-		mylog.Print(mylog.LogLevelError, "Unable to decode config into struct", err.Error())
+		log.Print(log.LogLevelError, "Unable to decode config into struct", err.Error())
 	}
 
 	return nil
