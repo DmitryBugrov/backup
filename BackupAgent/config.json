@@ -1,0 +1,18 @@
+{
+	"config_file_name": "config.json",
+	"BAcfg" : {
+		"Cid": "123456789",
+		"MaxFileSegment": 1048576,
+		"MessageServerAddress":"82.196.0.171",
+		"MessageServerPort":"5672",
+		"BackupGroup": [ {
+			"Path_for_backup": ["./", "/tmp"]
+			},
+			{
+			"Path_for_backup": ["/var"]
+			}
+			]
+	}
+	
+
+}
