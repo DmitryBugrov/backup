@@ -48,11 +48,13 @@ func main() {
 	}
 
 	//Init communications module
-	com := new(com.Communications)
-	if com.Init(Log, config) != nil {
+	Com := new(com.Communications)
+	if Com.Init(Log, config) != nil {
 		os.Exit(1)
 	}
-	defer com.Close()
+	defer Com.Close()
+
+	Com.SendHello("Hello from BackupAgent")
 
 	//Init Backup Agent
 	ba = new(BA.BA)

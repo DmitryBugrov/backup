@@ -1,0 +1,12 @@
+{
+	"config_file_name": "config.json",
+	"AAcfg" : {
+		"Cid": "1234567890",
+		"MaxFileSegment": 1048576,
+		"MessageServerAddress":"82.196.0.171",
+		"MessageServerPort":"5672"
+		
+	}
+	
+
+}
