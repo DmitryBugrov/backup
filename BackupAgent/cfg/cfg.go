@@ -18,9 +18,6 @@ var (
 )
 
 type Cfg struct {
-	//	cid	string
-	//	paths_list_for_backup [] string
-	//	Type map[string]string
 
 	//Path to config file
 	config_file_name string

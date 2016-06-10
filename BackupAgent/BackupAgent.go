@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	//Init lgging
+	//Init logging
 	Log = new(log.Log)
 	Log.Init(log.LogLevelTrace, true, true, true)
 
