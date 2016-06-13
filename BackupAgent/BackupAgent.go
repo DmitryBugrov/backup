@@ -1,15 +1,12 @@
 package main
 
 import (
-	//"errors"
-	//	"fmt"
 	"backup/BackupAgent/ba"
 	"backup/BackupAgent/cfg"
 	"backup/BackupAgent/com"
 	"backup/BackupAgent/db"
 	"os"
-	//	"backup/client/nc"
-	//	"backup/client/log"
+
 	"github.com/DmitryBugrov/log"
 )
 
@@ -24,6 +21,22 @@ var (
 )
 
 func main() {
+
+	//init agent
+	if !Init() {
+		os.Exit(1)
+	}
+	defer DB.Close()
+	defer Com.Close()
+
+	//start message loop
+	if !ListenerMessages() {
+		os.Exit(1)
+	}
+
+}
+
+func Init() bool {
 	//Init logging
 	Log = new(log.Log)
 	Log.Init(log.LogLevelTrace, true, true, true)
@@ -33,36 +46,39 @@ func main() {
 	err := config.Init(Log, config_file_name)
 	if err != nil {
 		Log.Print(log.LogLevelError, "No configuration file loaded: ", config_file_name)
-		os.Exit(1)
+		return false
 	}
 
 	//Init DB, create, if it need
 	DB = new(db.BackupDB)
-	//	err = DB.Init("ba_client.db")
-	if DB.Init(Log, "ba_client.db") != nil {
-		os.Exit(1)
+	if DB.Init(Log, config.BAcfg.LocalDB) != nil {
+		Log.Print(log.LogLevelError, "Error of initialization local database file: ", config.BAcfg.LocalDB)
+		return false
 	}
-	defer DB.Close()
+
 	if DB.CreateDB() != nil {
-		os.Exit(1)
+		Log.Print(log.LogLevelError, "Error creating local database file: ", config.BAcfg.LocalDB)
+		return false
 	}
 
 	//Init communications module
 	Com := new(com.Communications)
 	if Com.Init(Log, config) != nil {
-		os.Exit(1)
+		Log.Print(log.LogLevelError, "Error of initialization communications module")
+		return false
 	}
-	defer Com.Close()
-
-	Com.SendHello("Hello from BackupAgent")
 
 	//Init Backup Agent
 	ba = new(BA.BA)
 	err = ba.Init(Log, config, DB)
 	if err != nil {
-		Log.Print(log.LogLevelError, "Error of initialisation Backup Agent")
-		os.Exit(1)
+		Log.Print(log.LogLevelError, "Error of initialization Backup Agent")
+		return false
 	}
+	return true
+}
 
-	//	ba.StartBackup()
+func ListenerMessages() bool {
+
+	return true
 }

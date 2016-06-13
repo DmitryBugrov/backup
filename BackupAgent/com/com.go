@@ -4,7 +4,7 @@
 package com
 
 import (
-	"github.com/streadway/amqp"
+	goczmq "github.com/zeromq/goczmq"
 
 	"github.com/DmitryBugrov/log"
 
@@ -17,70 +17,26 @@ var (
 )
 
 type Communications struct {
-	conn   *amqp.Connection
-	ch     *amqp.Channel
-	qHello amqp.Queue
+	dealer *goczmq.Sock
 }
 
-func (self *Communications) Init(_Log *log.Log, config *cfg.Cfg) error {
+func (c *Communications) Init(_Log *log.Log, config *cfg.Cfg) error {
 	Log = _Log
 	Log.Print(log.LogLevelTrace, "Enter to com.Init")
-	url := "amqp://" + config.BAcfg.MessageServerAddress + ":" + config.BAcfg.MessageServerPort
-	self.conn, err = amqp.Dial(url)
-	if err != nil {
-		Log.Print(log.LogLevelError, err)
-		return err
-	}
-	self.ch, err = self.conn.Channel()
-	if err != nil {
-		Log.Print(log.LogLevelError, err)
-		return err
-	}
+	url := "tcp://" + config.BAcfg.MessageServerAddress + ":" + config.BAcfg.MessageServerPort
+	c.dealer, err = goczmq.NewDealer(url)
+	c.dealer.SetRcvtimeo(config.BAcfg.TimeoutForResponse)
 
-	self.qHello, err = self.ch.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	if err != nil {
-		Log.Print(log.LogLevelError, err)
-		return err
-	}
-
-	return nil
+	return err
 
 }
 
-func (self *Communications) Close() error {
+func (c *Communications) Close() {
 	Log.Print(log.LogLevelTrace, "Enter to com.Close")
-	if self.ch != nil {
-		err := self.ch.Close()
-		if err != nil {
-			Log.Print(log.LogLevelError, err)
-			return err
-		}
-	}
-	err := self.conn.Close()
-	if err != nil {
-		Log.Print(log.LogLevelError, err)
-		return err
-	}
-	return nil
+	c.dealer.Destroy()
 }
 
-func (self *Communications) SendHello(text string) error {
-
-	err = self.ch.Publish(
-		"",               // exchange
-		self.qHello.Name, // routing key
-		false,            // mandatory
-		false,            // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(text),
-		})
+func (c *Communications) SendToAdmin(msg []byte) error {
+	err = c.dealer.SendFrame(msg, goczmq.FlagNone)
 	return err
 }

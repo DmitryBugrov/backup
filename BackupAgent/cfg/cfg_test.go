@@ -29,6 +29,7 @@ func TestCfg(t *testing.T) {
 				So(config.BAcfg.MaxFileSegment, ShouldEqual, 1048576)
 				So(config.BAcfg.MessageServerAddress, ShouldEqual, "127.0.0.1")
 				So(config.BAcfg.BackupGroup[0].Path_for_backup[0], ShouldEqual, "/tmp")
+				So(config.BAcfg.TimeoutForResponse, ShouldEqual, 1000)
 			})
 		})
 

@@ -3,8 +3,10 @@
 	"BAcfg" : {
 		"Cid": "123456789",
 		"MaxFileSegment": 1048576,
+		"LocalDB":"ba_client.db",
 		"MessageServerAddress":"127.0.0.1",
 		"MessageServerPort":"5672",
+		"TimeoutForResponse":1000,
 		"BackupGroup": [ {
 			"Path_for_backup": ["/tmp"]
 			}

@@ -27,8 +27,10 @@ type Cfg struct {
 		//Unique client id
 		Cid                  string
 		MaxFileSegment       int64
+		LocalDB              string
 		MessageServerAddress string
 		MessageServerPort    string
+		TimeoutForResponse   int
 		BackupGroup          []struct {
 			Path_for_backup []string
 			Schedule        struct {

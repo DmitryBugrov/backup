@@ -2,9 +2,11 @@
 	"config_file_name": "config.json",
 	"BAcfg" : {
 		"Cid": "123456789",
+		"LocalDB":"ba_client.db",
 		"MaxFileSegment": 1048576,
 		"MessageServerAddress":"82.196.0.171",
 		"MessageServerPort":"5672",
+		"TimeoutForResponse":1000,
 		"BackupGroup": [ {
 			"Path_for_backup": ["./", "/tmp"]
 			},
