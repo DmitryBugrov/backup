@@ -5,12 +5,13 @@ import (
 	"backup/BackupAgent/cfg"
 	"backup/BackupAgent/com"
 	"backup/BackupAgent/db"
+	"bytes"
 	"os"
 
 	"github.com/DmitryBugrov/log"
 )
 
-const config_file_name = "config.json"
+const const_config_file_name = "config.json"
 
 var (
 	config *cfg.Cfg //config
@@ -24,19 +25,27 @@ func main() {
 
 	//init agent
 	if !Init() {
+		Log.Print(log.LogLevelError, "Error initialization")
 		os.Exit(1)
 	}
 	defer DB.Close()
 	defer Com.Close()
 
 	//start message loop
-	if !ListenerMessages() {
-		os.Exit(1)
+	for {
+		if !ListenerMessages() {
+			Log.Print(log.LogLevelTrace, "Receve the message 'Exit' ")
+			os.Exit(0)
+		}
 	}
 
 }
 
 func Init() bool {
+	return initWithConf(const_config_file_name)
+}
+
+func initWithConf(config_file_name string) bool {
 	//Init logging
 	Log = new(log.Log)
 	Log.Init(log.LogLevelTrace, true, true, true)
@@ -62,7 +71,7 @@ func Init() bool {
 	}
 
 	//Init communications module
-	Com := new(com.Communications)
+	Com = new(com.Communications)
 	if Com.Init(Log, config) != nil {
 		Log.Print(log.LogLevelError, "Error of initialization communications module")
 		return false
@@ -79,6 +88,19 @@ func Init() bool {
 }
 
 func ListenerMessages() bool {
+
+	reply, err := Com.Receve()
+	Log.Print(log.LogLevelTrace, "Received a message")
+	if err != nil {
+		Log.Print(log.LogLevelError, "Error receve a message")
+		return true
+	}
+	if bytes.Compare(reply[1], []byte("Exit")) == 0 {
+		Log.Print(log.LogLevelTrace, "Receve Exit")
+		return false
+	}
+
+	Log.Print(log.LogLevelTrace, "received unidentified message")
 
 	return true
 }

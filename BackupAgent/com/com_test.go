@@ -12,43 +12,41 @@ import (
 	"backup/BackupAgent/cfg"
 )
 
-const config_file_name = "./config_test.json"
+const config_file_name = "../test/config_test.json"
 
 var (
 	Com *Communications
 )
 
 func TestModuleCom(t *testing.T) {
+	Convey("Test com module", t, func() {
+		//Init logging
+		Log = new(log.Log)
 
-	//Init logging
-	Log = new(log.Log)
+		//Init and load config
+		config := new(cfg.Cfg)
+		So(config.Init(Log, config_file_name), ShouldEqual, nil)
 
-	//Init and load config
-	config := new(cfg.Cfg)
-	err := config.Init(Log, config_file_name)
-	if err != nil {
-		Log.Print(log.LogLevelError, "No configuration file loaded: ", config_file_name)
+		Convey("Init com module", func() {
+			//Init communications module
+			Com = new(Communications)
+			So(Com.Init(Log, config), ShouldEqual, nil)
 
-	}
+			Convey("Send message Hello", func() {
+				So(Com.Send([]byte("Hello")), ShouldEqual, nil)
 
-	Convey("Init com module", t, func() {
-		//Init communications module
-		Com = new(Communications)
-		So(Com.Init(Log, config), ShouldEqual, nil)
+				Convey("Receve message Hello ", func() {
+					request, err := Com.Receve()
+					So(err, ShouldEqual, nil)
+					So(request[1], ShouldResemble, []byte("Hello"))
+				})
 
+			})
+
+		})
+		Convey("Close socket", func() {
+			Com.Close()
+
+		})
 	})
-
-	Convey("Send message Hello", t, func() {
-		So(Com.SendToAdmin([]byte("Hello")), ShouldEqual, nil)
-		reply, err := Com.dealer.RecvMessage()
-		So(err, ShouldEqual, nil)
-		So(reply[0], ShouldEqual, []byte("Hello"))
-
-	})
-
-	Convey("Close socket", t, func() {
-		Com.Close()
-
-	})
-
 }
